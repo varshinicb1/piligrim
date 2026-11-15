@@ -1,0 +1,19 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    # Generated code.
+    - "**/*.g.dart"
+    - lib/l10n/app_localizations*.dart
+  language:
+    strict-casts: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    prefer_single_quotes: true
+    unawaited_futures: true
+    always_declare_return_types: true

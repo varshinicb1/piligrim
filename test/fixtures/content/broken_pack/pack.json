@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "broken_pack",
+  "version": "1.0.0",
+  "reviewStatus": "approved",
+  "languages": ["en"],
+  "template": {
+    "tradition": "sample",
+    "lengthDays": { "min": 3, "default": 7, "max": 9 },
+    "vows": [{ "id": "fast_until_sunset" }, { "id": "give_alms" }],
+    "milestones": [{ "id": "midpoint", "anchor": "start", "offsetDays": 3 }],
+    "mascotTheme": "none"
+  },
+  "prayers": []
+}

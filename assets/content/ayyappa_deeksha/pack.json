@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "ayyappa_deeksha",
+  "version": "0.1.0",
+  "reviewStatus": "draft",
+  "languages": ["en", "te", "ta", "kn", "ml"],
+  "template": {
+    "tradition": "ayyappa",
+    "lengthDays": { "min": 41, "default": 41, "max": 60 },
+    "vows": [
+      { "id": "morning_bath_pooja" },
+      { "id": "evening_pooja" },
+      { "id": "sattvic_food" },
+      { "id": "no_intoxicants" },
+      { "id": "brahmacharya" },
+      { "id": "kind_speech" }
+    ],
+    "milestones": [
+      { "id": "mala_dharana", "anchor": "start", "offsetDays": 0 },
+      { "id": "mandala_complete", "anchor": "end", "offsetDays": 0 }
+    ],
+    "mascotTheme": "forest_companion"
+  },
+  "prayers": [
+    { "id": "saranam_sample" }
+  ]
+}

@@ -1,0 +1,24 @@
+name: piligrim_design
+description: Piligrim design system - theme tokens and ThemeData for the Flutter app.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.14.0
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_ui: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+# Fonts are NOT bundled in this package yet. The app (or this package) must
+# declare these families once the font files are added. All ten families are
+# variable fonts under the SIL Open Font License, from Google Fonts.
+# See README.md, "Fonts", for the pubspec block to copy.
+flutter:
+  uses-material-design: true
