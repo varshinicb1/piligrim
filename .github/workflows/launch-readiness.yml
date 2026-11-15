@@ -1,0 +1,46 @@
+name: Launch readiness
+
+# Run by hand to see which release settings exist. It prints names only,
+# never values.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Release settings
+    runs-on: ubuntu-latest
+    # Needed so the job can see the environment's secrets and variables.
+    environment: play-store
+    steps:
+      - name: List what is set and what is missing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          UPLOAD_KEY_SHA1: ${{ vars.UPLOAD_KEY_SHA1 }}
+        run: |
+          missing=0
+          {
+            echo "| Setting | Needed for | State |"
+            echo "| --- | --- | --- |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          row() {
+            if [ -n "${!1}" ]; then state="set"; else state="MISSING"; missing=$((missing + 1)); fi
+            echo "| $1 | $2 | $state |" >> "$GITHUB_STEP_SUMMARY"
+            echo "$1: $state"
+          }
+          row ANDROID_KEYSTORE_BASE64 "signed bundle"
+          row ANDROID_KEYSTORE_PASSWORD "signed bundle"
+          row ANDROID_KEY_ALIAS "signed bundle"
+          row ANDROID_KEY_PASSWORD "signed bundle"
+          row UPLOAD_KEY_SHA1 "signature check (variable)"
+          row PLAY_SERVICE_ACCOUNT_JSON "upload to Play"
+          if [ "$missing" -gt 0 ]; then
+            echo "::warning::$missing release settings are missing. See docs/RELEASE.md."
+          fi

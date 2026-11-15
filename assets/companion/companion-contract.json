@@ -1,0 +1,46 @@
+{
+  "version": "0.1.0",
+  "status": "proposal",
+  "file": "assets/rive/companion_chinnu.riv",
+  "artboard": "Companion",
+  "artboardSize": [400, 420],
+  "stateMachine": "CompanionSM",
+  "maxFileBytes": 153600,
+  "inputs": {
+    "mood": { "type": "number", "default": 0, "values": { "0": "calm", "1": "glad", "2": "thoughtful", "3": "tired", "4": "tender" } },
+    "dayProgress": { "type": "number", "default": 0, "min": 0, "max": 100 },
+    "timeOfDay": { "type": "number", "default": 1, "values": { "0": "dawn", "1": "day", "2": "dusk", "3": "night" } },
+    "listening": { "type": "boolean", "default": false },
+    "thinking": { "type": "boolean", "default": false },
+    "quiet": { "type": "boolean", "default": false },
+    "sleeping": { "type": "boolean", "default": false },
+    "greet": { "type": "trigger" },
+    "celebrate": { "type": "trigger" },
+    "celebrateLevel": { "type": "number", "default": 1, "values": { "1": "dayComplete", "2": "milestone", "3": "journeyComplete" } },
+    "comfort": { "type": "trigger" },
+    "lookX": { "type": "number", "default": 0, "min": -100, "max": 100 },
+    "lookY": { "type": "number", "default": 0, "min": -100, "max": 100 },
+    "reduceMotion": { "type": "boolean", "default": false }
+  },
+  "events": ["celebratePeak", "celebrateDone", "comfortDone", "wakeDone"],
+  "bodyPriority": ["sleeping", "quiet", "listening", "thinking", "mood==3", "idle"],
+  "rules": [
+    "celebrate is ignored while quiet is true; the app re-fires it after audio ends",
+    "comfort cancels a running celebration",
+    "a trigger while sleeping wakes the character first",
+    "after missed days the app fires comfort, never greet",
+    "dayProgress never lowers the resting mood below calm"
+  ],
+  "fallbackStills": {
+    "idle": "concept-art/chinnu-idle.svg",
+    "greet": "concept-art/chinnu-greet.svg",
+    "listening": "concept-art/chinnu-listening.svg",
+    "thinking": "concept-art/chinnu-thinking.svg",
+    "celebrate": "concept-art/chinnu-celebrate.svg",
+    "comfort": "concept-art/chinnu-comfort.svg",
+    "quiet": "concept-art/chinnu-quiet.svg",
+    "tired": "concept-art/chinnu-tired.svg",
+    "sleeping": "concept-art/chinnu-sleeping.svg",
+    "proud": "concept-art/chinnu-proud.svg"
+  }
+}

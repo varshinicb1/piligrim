@@ -1,0 +1,106 @@
+{
+  "@@locale": "en",
+  "appTitle": "Piligrim",
+  "languageTitle": "Choose your language",
+  "continueLabel": "Continue",
+  "startTitle": "Begin your deeksha",
+  "startDateLabel": "Mala dharana date",
+  "lengthLabel": "Length of deeksha",
+  "daysCount": "{count, plural, =1{{count} day} other{{count} days}}",
+  "@daysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sankalpamLabel": "Your sankalpam (optional)",
+  "beginJourney": "Begin journey",
+  "tabToday": "Today",
+  "tabJourney": "Journey",
+  "tabPrayers": "Prayers",
+  "tabBook": "Journey Book",
+  "dayOfTotal": "Day {day} of {total}",
+  "@dayOfTotal": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "todaysVows": "Today's vows",
+  "reflectionLabel": "A line about today",
+  "save": "Save",
+  "saved": "Saved",
+  "addPhoto": "Add photo",
+  "addVoiceNote": "Voice note",
+  "comingSoon": "Coming soon",
+  "journeyUpcoming": "{count, plural, =1{Your deeksha begins in {count} day} other{Your deeksha begins in {count} days}}",
+  "@journeyUpcoming": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "journeyComplete": "Your {total} days are complete. Swamiye Saranam Ayyappa.",
+  "@journeyComplete": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dayLabel": "Day {day}",
+  "@dayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "vowsKeptCount": "{kept} of {total} vows",
+  "@vowsKeptCount": {
+    "placeholders": {
+      "kept": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "noEntryYet": "No entry",
+  "bookIntro": "When your deeksha is complete, your days will be gathered into a Journey Book to keep.",
+  "bookDaysRecorded": "{count, plural, =1{{count} day recorded} other{{count} days recorded}}",
+  "@bookDaysRecorded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsTitle": "Settings",
+  "languageSetting": "Language",
+  "deleteDataTitle": "Delete my data",
+  "deleteDataBody": "This removes your journey and every entry from this phone. It cannot be undone.",
+  "deleteConfirm": "Delete",
+  "cancel": "Cancel",
+  "draftContentNotice": "Draft content, awaiting review by Guruswamis.",
+  "comfortMessage": "Yesterday is behind you. Today is a new day.",
+  "milestoneToday": "Today: {name}",
+  "@milestoneToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "loadError": "Something went wrong. Please close the app and open it again.",
+  "tabGroup": "Group",
+  "tabGuide": "Guide",
+  "groupIntro": "Guruswami groups are coming soon. You can keep your deeksha here on your own until then."
+}

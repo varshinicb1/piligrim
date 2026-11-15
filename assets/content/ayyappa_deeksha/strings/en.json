@@ -1,0 +1,17 @@
+{
+  "template.title": "Ayyappa Deeksha",
+  "vow.morning_bath_pooja.title": "Bathe before sunrise and offer morning pooja",
+  "vow.evening_pooja.title": "Evening bath, pooja and Saranam chanting",
+  "vow.sattvic_food.title": "Simple vegetarian food",
+  "vow.no_intoxicants.title": "No alcohol or tobacco",
+  "vow.brahmacharya.title": "Brahmacharya",
+  "vow.kind_speech.title": "Speak gently, without anger",
+  "milestone.mala_dharana.title": "Mala dharana",
+  "milestone.mandala_complete.title": "Mandala kalam complete",
+  "prayer.saranam_sample.title": "Saranam chant (sample)",
+  "prayer.saranam_sample.lines": [
+    "Swamiye Saranam Ayyappa",
+    "Harihara Sutane Saranam Ayyappa",
+    "Kannimoola Ganapati Bhagavane Saranam Ayyappa"
+  ]
+}

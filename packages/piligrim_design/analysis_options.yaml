@@ -1,0 +1,6 @@
+# The design package is analyzed on its own, not with the app's lint set.
+analyzer:
+  exclude:
+    - build/**
+  language:
+    strict-casts: true
