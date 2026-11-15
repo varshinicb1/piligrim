@@ -92,8 +92,8 @@ Drift schema snapshots and migration tests.
 - **Fonts**: the design package names Anek and Noto Sans families that are not
   bundled. Until they are, Android falls back to its system fonts. Their size
   against the 40 MB budget has not been measured.
-- **iOS**: the `ios/` folder is generated and has never been built. CI does
-  not build it, because macOS runners use paid minutes at ten times the rate.
+- **iOS**: the `ios/` folder is generated and has never been built, and CI
+  does not build it yet.
 
 ## Known gaps in this foundation
 

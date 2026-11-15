@@ -1,0 +1,170 @@
+name: Release
+
+# Builds a signed Android App Bundle and, when asked, sends it to Google
+# Play's internal testing track as a draft. A person still presses "Send for
+# review" in Play Console. One-time setup: docs/RELEASE.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      play_track:
+        description: Where to send the bundle
+        type: choice
+        options:
+          - none (build and verify only)
+          - internal
+        default: none (build and verify only)
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: 3.50.0
+  PACKAGE_NAME: com.vidyuthlabs.piligrim
+  AAB: build/app/outputs/bundle/release/app-release.aab
+
+jobs:
+  release:
+    name: Signed bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: play-store
+    steps:
+      - uses: actions/checkout@v4
+
+      # The track is resolved here in bash, never with `inputs.x || 'internal'`,
+      # so that "build only" can never turn into an upload by accident.
+      - name: Decide version and track
+        id: plan
+        env:
+          RAW_TRACK: ${{ inputs.play_track }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            track=internal
+            name="${GITHUB_REF_NAME#v}"
+          else
+            case "$RAW_TRACK" in
+              internal) track=internal ;;
+              none*|"") track="" ;;
+              *) echo "::error::Unknown track '$RAW_TRACK'"; exit 1 ;;
+            esac
+            name=$(sed -n 's/^version: *\([0-9.]*\).*/\1/p' pubspec.yaml)
+          fi
+          if ! echo "$name" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Version name '$name' is not in the form 1.2.3"
+            exit 1
+          fi
+          # Play needs a version code that rises with every upload.
+          code=$((1000 + GITHUB_RUN_NUMBER))
+          {
+            echo "track=$track"
+            echo "name=$name"
+            echo "code=$code"
+          } >> "$GITHUB_OUTPUT"
+          echo "Version $name ($code), track: ${track:-none, build only}" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - name: Generate database code
+        run: dart run build_runner build
+      - run: flutter analyze
+      - run: flutter test
+
+      - name: Restore the upload keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          missing=""
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::A release needs these secrets in the play-store environment:$missing. See docs/RELEASE.md."
+            exit 1
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
+          {
+            echo "storeFile=upload-keystore.jks"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > android/key.properties
+
+      - name: Build the app bundle
+        run: >
+          flutter build appbundle --release
+          --build-name "${{ steps.plan.outputs.name }}"
+          --build-number "${{ steps.plan.outputs.code }}"
+
+      - name: Remove the keystore from the runner
+        if: always()
+        run: rm -f android/upload-keystore.jks android/key.properties
+
+      - name: Verify the bundle
+        env:
+          UPLOAD_KEY_SHA1: ${{ vars.UPLOAD_KEY_SHA1 }}
+        run: |
+          normalize() { tr -d ': \n' | tr 'a-f' 'A-F'; }
+          expected=$(printf '%s' "$UPLOAD_KEY_SHA1" | normalize)
+          if [ -z "$expected" ]; then
+            echo "::error::Set the UPLOAD_KEY_SHA1 variable in the play-store environment. See docs/RELEASE.md."
+            exit 1
+          fi
+          actual=$(keytool -printcert -jarfile "$AAB" | sed -n 's/.*SHA1: *//p' | head -1 | normalize)
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::The bundle is signed with $actual, not the upload key $expected."
+            exit 1
+          fi
+          if ! unzip -p "$AAB" base/manifest/AndroidManifest.xml | grep -aq "$PACKAGE_NAME"; then
+            echo "::error::The bundle's package is not $PACKAGE_NAME."
+            exit 1
+          fi
+          size=$(stat -c %s "$AAB")
+          echo "Signed with the upload key. Bundle is $((size / 1024 / 1024)) MB." >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: piligrim-${{ steps.plan.outputs.name }}-${{ steps.plan.outputs.code }}
+          path: |
+            ${{ env.AAB }}
+            build/app/outputs/mapping/release/mapping.txt
+          retention-days: 90
+
+      - name: Check the Play service account is set
+        if: steps.plan.outputs.track != ''
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::An upload needs the PLAY_SERVICE_ACCOUNT_JSON secret in the play-store environment. The signed bundle is attached to this run for a manual upload. See docs/RELEASE.md."
+            exit 1
+          fi
+
+      - name: Upload to Google Play as a draft
+        if: steps.plan.outputs.track != ''
+        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ env.PACKAGE_NAME }}
+          releaseFiles: ${{ env.AAB }}
+          mappingFile: build/app/outputs/mapping/release/mapping.txt
+          track: ${{ steps.plan.outputs.track }}
+          status: draft
+          releaseName: ${{ steps.plan.outputs.name }} (${{ steps.plan.outputs.code }})

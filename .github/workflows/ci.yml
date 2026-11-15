@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -42,7 +42,7 @@ jobs:
           flutter test
 
   android-bundle:
-    name: Android release bundle
+    name: Android release build
     needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -52,7 +52,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -60,27 +60,8 @@ jobs:
       - run: flutter pub get
       - name: Generate database code
         run: dart run build_runner build
-      # With the four ANDROID_* secrets set, the bundle is signed with the
-      # upload key and can go to Play. Without them it is signed with the
-      # debug key: good for checking that the build works, not for upload.
-      - name: Set up release signing
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: |
-          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
-            echo "::notice::No upload keystore secret. Building a debug-signed bundle."
-            exit 0
-          fi
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
-          {
-            echo "storeFile=upload-keystore.jks"
-            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
-            echo "keyAlias=$ANDROID_KEY_ALIAS"
-            echo "keyPassword=$ANDROID_KEY_PASSWORD"
-          } > android/key.properties
+      # Signed with the debug key: this job proves the release build works.
+      # Signing for Play happens only in release.yml, which holds the secrets.
       - name: Build the app bundle
         run: flutter build appbundle --release --build-number "${{ github.run_number }}"
       - name: Check the base download size
@@ -90,6 +71,6 @@ jobs:
           echo "::notice::app-release.aab is $((size / 1024 / 1024)) MB (the bundle holds every ABI; the download per phone is smaller)"
       - uses: actions/upload-artifact@v4
         with:
-          name: piligrim-release-aab
+          name: piligrim-unsigned-check-aab
           path: build/app/outputs/bundle/release/app-release.aab
-          retention-days: 14
+          retention-days: 7

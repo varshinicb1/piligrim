@@ -37,19 +37,11 @@ flutter test
 flutter build appbundle --release
 ```
 
-Without `android/key.properties` the bundle is signed with the debug key. To
-sign for Play, create an upload keystore and add:
+Without `android/key.properties` the bundle is signed with the debug key,
+which is fine for checking the build.
 
-```properties
-# android/key.properties (never commit this file)
-storeFile=upload-keystore.jks
-storePassword=...
-keyAlias=upload
-keyPassword=...
-```
-
-CI does the same from four repository secrets: `ANDROID_KEYSTORE_BASE64`,
-`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`.
+Releases are built and signed by GitHub Actions and sent to Play internal
+testing as a draft. Setup and steps: [docs/RELEASE.md](docs/RELEASE.md).
 
 ## Languages
 
